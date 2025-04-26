@@ -1,0 +1,100 @@
+いいね！じゃあ次は、**`break-` 系プロパティ**（`word-break`, `overflow-wrap`, `break-word`）をわかりやすく図解して説明するね 💡  
+これらは「**長い英単語やURLをどうやって折り返すか**」に関わる重要プロパティだよ。
+
+---
+
+## 💥 `word-break`（単語の途中で改行するか）
+
+### 📘 意味：
+**単語や文字列をどの位置で改行できるか**を指定するプロパティ。
+
+### 🎨 図解：
+
+#### `word-break: normal`（標準の挙動）
+
+```
+ThisIsAVeryLongEnglishWordWithoutSpaces
+→ はみ出して改行されない（スクロールされる）
+```
+
+#### `word-break: break-all`
+
+```
+ThisIsAVeryLongEnglishWord
+→ ThisIsAVeryLon
+   gEnglishWord ← 単語の途中でも無理やり改行！
+```
+
+#### `word-break: keep-all`（主に韓国語向け）
+
+```
+日本語の文章では効果は小さいが、
+英語では単語途中の改行を防ぐ。
+```
+
+---
+
+## 🔄 `overflow-wrap`（改行の許可）
+
+### 📘 意味：
+**必要に応じて、単語の途中でも折り返してよいかどうか**を指定する。
+
+### 🎨 図解：
+
+#### `overflow-wrap: normal`
+
+```
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+→ 1行からはみ出して、横スクロールが必要になる
+```
+
+#### `overflow-wrap: break-word`
+
+```
+aaaaaaaaaaaaaaaaaaaaaa
+→ 自動で途中で改行（折り返し）される
+```
+
+---
+
+## ✅ `break-word`（実は overflow-wrap の値）
+
+```css
+overflow-wrap: break-word;
+```
+
+これは、**長い単語を改行できるようにする実質的なトリガー**です！  
+古いブラウザでは `word-wrap: break-word;` と書いていたこともあるけど、今は `overflow-wrap` に統一されてるよ。
+
+---
+
+## 💡 実用組み合わせ例（おすすめ）
+
+```css
+p {
+  word-break: break-word;        /* 極端な単語にも対応 */
+  overflow-wrap: break-word;     /* 標準ブラウザ向けの折返し */
+  hyphens: auto;                 /* 英語なら自然なハイフン入り改行 */
+}
+```
+
+---
+
+## ✅ おさらい比較表（`break-`系プロパティ）
+
+| プロパティ             | 主な値              | 効果                                         | よく使う場面             |
+|------------------------|---------------------|----------------------------------------------|--------------------------|
+| `word-break`           | `normal`            | 単語の途中では改行しない                     | 英語やURLを自然に表示   |
+|                        | `break-all`         | 単語の途中でもどこでも改行する               | 表示スペースが狭いとき   |
+|                        | `keep-all`          | 単語間の改行のみ許可（韓国語向け）           | 韓国語や整った見た目     |
+| `overflow-wrap`        | `normal`            | 単語が長くても改行しない（はみ出す）         | デフォルト設定           |
+|                        | `break-word`        | 単語の途中ででも改行してはみ出させない       | レスポンシブ対応時など   |
+
+---
+
+## 📸 図で見たい？
+
+希望があれば、上の `word-break`, `overflow-wrap`, `break-word` の挙動を**図で見える化した画像**も用意できるよ！  
+「図で見せて！」って言ってくれたらすぐ出すね。
+
+見たい？それとも他のプロパティの図解もしてみようか？
