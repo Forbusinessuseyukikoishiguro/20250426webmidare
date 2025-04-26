@@ -1,4 +1,4 @@
-いいね！じゃあ次は、**`break-` 系プロパティ**（`word-break`, `overflow-wrap`, `break-word`）をわかりやすく図解して説明するね 💡  
+**`break-` 系プロパティ**（`word-break`, `overflow-wrap`, `break-word`）をわかりやすく図解してシェアしていきます。
 これらは「**長い英単語やURLをどうやって折り返すか**」に関わる重要プロパティだよ。
 
 ---
