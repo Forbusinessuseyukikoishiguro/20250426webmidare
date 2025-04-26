@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テキストレイアウト崩れ対応デモサイト</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        
+        h2 {
+            margin: 25px 0 15px;
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .demo-box {
+            flex: 1;
+            min-width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .title-bar {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .language-toggle {
+            display: inline-block;
+            cursor: pointer;
+            font-size: 0.8em;
+            padding: 2px 5px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+        
+        .content {
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+        
+        .problem {
+            background-color: #ffecec;
+        }
+        
+        .solution {
+            background-color: #e8f5e9;
+        }
+        
+        .code-block {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 3px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+        
+        .example-text {
+            border: 1px dashed #bbb;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: white;
+        }
+        
+        .button-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        button {
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .header-menu {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .header-menu-item {
+            padding: 10px 15px;
+            color: white;
+            text-align: center;
+        }
+        
+        .header-menu-item.bad {
+            width: 120px;
+        }
+        
+        .header-menu-item.good {
+            min-width: 120px;
+            white-space: nowrap;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        
+        /* レスポンシブデザイン例 */
+        .responsive-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .responsive-box {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .fixed-width-button {
+            width: 120px;
+            text-align: center;
+            padding: 8px;
+            background-color: #3498db;
+            color: white;
+            margin: 10px 0;
+        }
+        
+        .auto-width-button {
+            min-width: 120px;
+            width: auto;
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            margin: 10px 0;
+            display: inline-block;
+        }
+        
+        .long-word {
+            width: 150px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+        }
+        
+        .break-all {
+            word-break: break-all;
+        }
+        
+        .break-word {
+            word-wrap: break-word;
+        }
+        
+        .truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .hyphenate {
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -ms-hyphens: auto;
+        }
+        
+        /* レスポンシブ設定 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .demo-box {
+                min-width: 100%;
+            }
+            
+            .header-menu-item {
+                flex: 1 0 50%;
+            }
+        }
+        
+        /* 言語切り替え機能のスタイル */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>テキストレイアウト崩れ対応デモサイト</h1>
+    
+    <p>このデモサイトでは、日本語から英語へのテキスト置換時によく発生するレイアウト崩れの問題と、それを解決するためのCSS技術を紹介します。各例で「JP/EN」ボタンをクリックすると、日本語と英語のテキストを切り替えることができます。</p>
+    
+    <h2>1. メニュー項目の問題</h2>
+    <div class="container">
+        <div class="demo-box">
+            <div class="title-bar">
+                問題例 <span class="language-toggle" onclick="toggleLanguage('menu-problem')">JP/EN</span>
+            </div>
+            <div class="content problem">
+                <p>固定幅のメニュー項目で、英語テキストが長くなると折り返しやはみ出しが発生します。</p>
+                <div class="header-menu">
+                    <div class="header-menu-item bad jp-text" id="menu-problem-jp-1">ホーム</div>
+                    <div class="header-menu-item bad jp-text" id="menu-problem-jp-2">会社概要</div>
+                    <div class="header-menu-item bad jp-text" id="menu-problem-jp-3">製品情報</div>
+                    <div class="header-menu-item bad jp-text" id="menu-problem-jp-4">お問い合わせ</div>
+                    
+                    <div class="header-menu-item bad en-text hidden" id="menu-problem-en-1">Home</div>
+                    <div class="header-menu-item bad en-text hidden" id="menu-problem-en-2">Corporate Information</div>
+                    <div class="header-menu-item bad en-text hidden" id="menu-problem-en-3">Products</div>
+                    <div class="header-menu-item bad en-text hidden" id="menu-problem-en-4">Contact Us</div>
+                </div>
+                <div class="code-block">
+.header-menu-item {
+    width: 120px; /* 固定幅 */
+}
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-box">
+            <div class="title-bar">
+                解決策 <span class="language-toggle" onclick="toggleLanguage('menu-solution')">JP/EN</span>
+            </div>
+            <div class="content solution">
+                <p>最小幅を指定しつつ、white-spaceプロパティを使用してテキストの折り返しを防ぎます。</p>
+                <div class="header-menu">
+                    <div class="header-menu-item good jp-text" id="menu-solution-jp-1">ホーム</div>
+                    <div class="header-menu-item good jp-text" id="menu-solution-jp-2">会社概要</div>
+                    <div class="header-menu-item good jp-text" id="menu-solution-jp-3">製品情報</div>
+                    <div class="header-menu-item good jp-text" id="menu-solution-jp-4">お問い合わせ</div>
+                    
+                    <div class="header-menu-item good en-text hidden" id="menu-solution-en-1">Home</div>
+                    <div class="header-menu-item good en-text hidden" id="menu-solution-en-2">Corporate Information</div>
+                    <div class="header-menu-item good en-text hidden" id="menu-solution-en-3">Products</div>
+                    <div class="header-menu-item good en-text hidden" id="menu-solution-en-4">Contact Us</div>
+                </div>
+                <div class="code-block">
+.header-menu-item {
+    min-width: 120px; /* 最小幅の指定 */
+    white-space: nowrap; /* テキストの折り返しを防止 */
+}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <h2>2. ボタン内のテキスト問題</h2>
+    <div class="container">
+        <div class="demo-box">
+            <div class="title-bar">
+                問題例 <span class="language-toggle" onclick="toggleLanguage('button-problem')">JP/EN</span>
+            </div>
+            <div class="content problem">
+                <p>固定幅のボタンで、英語テキストがはみ出す問題が発生します。</p>
+                <div class="example-text">
+                    <div class="fixed-width-button jp-text" id="button-problem-jp">詳細を見る</div>
+                    <div class="fixed-width-button en-text hidden" id="button-problem-en">View Details</div>
+                </div>
+                <div class="code-block">
+.fixed-width-button {
+    width: 120px; /* 固定幅 */
+    text-align: center;
+}
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-box">
+            <div class="title-bar">
+                解決策 <span class="language-toggle" onclick="toggleLanguage('button-solution')">JP/EN</span>
+            </div>
+            <div class="content solution">
+                <p>最小幅を指定しつつ、自動幅とパディングを使用して柔軟に対応します。</p>
+                <div class="example-text">
+                    <div class="auto-width-button jp-text" id="button-solution-jp">詳細を見る</div>
+                    <div class="auto-width-button en-text hidden" id="button-solution-en">View Details</div>
+                </div>
+                <div class="code-block">
+.auto-width-button {
+    min-width: 120px; /* 最小幅 */
+    width: auto; /* 自動幅 */
+    padding: 8px 15px; /* 余白の指定 */
+}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <h2>3. 単語途中での改行問題</h2>
+    <div class="container">
+        <div class="demo-box">
+            <div class="title-bar">
+                問題例 <span class="language-toggle" onclick="toggleLanguage('word-break-problem')">JP/EN</span>
+            </div>
+            <div class="content problem">
+                <p>英単語が長い場合、固定幅要素内で単語が切れてしまいます。</p>
+                <div class="example-text">
+                    <div class="long-word jp-text" id="word-break-problem-jp">環境問題について詳細な情報を提供しています。</div>
+                    <div class="long-word en-text hidden" id="word-break-problem-en">We provide comprehensive information about environmental sustainability issues.</div>
+                </div>
+                <div class="code-block">
+.long-word {
+    width: 150px; /* 固定幅 */
+}
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-box">
+            <div class="title-bar">
+                解決策1: word-break <span class="language-toggle" onclick="toggleLanguage('word-break-solution1')">JP/EN</span>
+            </div>
+            <div class="content solution">
+                <p>word-break: break-all を使用すると、単語途中でも強制的に改行します。</p>
+                <div class="example-text">
+                    <div class="long-word break-all jp-text" id="word-break-solution1-jp">環境問題について詳細な情報を提供しています。</div>
+                    <div class="long-word break-all en-text hidden" id="word-break-solution1-en">We provide comprehensive information about environmental sustainability issues.</div>
+                </div>
+                <div class="code-block">
+.break-all {
+    word-break: break-all; /* 単語途中でも改行 */
+}
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-box">
+            <div class="title-bar">
+                解決策2: word-wrap <span class="language-toggle" onclick="toggleLanguage('word-break-solution2')">JP/EN</span>
+            </div>
+            <div class="content solution">
+                <p>word-wrap: break-word を使用すると、単語単位で改行し、必要な場合のみ単語内で改行します。</p>
+                <div class="example-text">
+                    <div class="long-word break-word jp-text" id="word-break-solution2-jp">環境問題について詳細な情報を提供しています。</div>
+                    <div class="long-word break-word en-text hidden" id="word-break-solution2-en">We provide comprehensive information about environmental sustainability issues.</div>
+                </div>
+                <div class="code-block">
+.break-word {
+    word-wrap: break-word; /* 必要な場合のみ単語内で改行 */
+}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <h2>4. テキスト切り捨てとハイフネーション</h2>
+    <div class="container">
+        <div class="demo-box">
+            <div class="title-bar">
+                解決策3: テキスト切り捨て <span class="language-toggle" onclick="toggleLanguage('truncate')">JP/EN</span>
+            </div>
+            <div class="content solution">
+                <p>テキストを折り返さず、はみ出た部分を省略記号で表示します。</p>
+                <div class="example-text">
+                    <div class="long-word truncate jp-text" id="truncate-jp">環境問題について詳細な情報を提供しています。</div>
+                    <div class="long-word truncate en-text hidden" id="truncate-en">We provide comprehensive information about environmental sustainability issues.</div>
+                </div>
+                <div class="code-block">
+.truncate {
+    white-space: nowrap; /* 折り返しを禁止 */
+    overflow: hidden; /* はみ出た部分を隠す */
+    text-overflow: ellipsis; /* 省略記号を表示 */
+}
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-box">
+            <div class="title-bar">
+                解決策4: ハイフネーション <span class="language-toggle" onclick="toggleLanguage('hyphenate')">JP/EN</span>
+            </div>
+            <div class="content solution">
+                <p>長い単語をハイフンで区切って改行します（ブラウザ対応に注意）。</p>
+                <div class="example-text">
+                    <div class="long-word hyphenate jp-text" id="hyphenate-jp">環境問題について詳細な情報を提供しています。</div>
+                    <div class="long-word hyphenate en-text hidden" id="hyphenate-en">We provide comprehensive information about environmental sustainability issues.</div>
+                </div>
+                <div class="code-block">
+.hyphenate {
+    hyphens: auto; /* 自動ハイフネーション */
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <h2>5. レスポンシブ対応テクニック</h2>
+    <div class="responsive-container">
+        <div class="responsive-box">
+            <h3>レスポンシブコンテナの活用</h3>
+            <p>flexboxやgridを使用して、柔軟なレイアウトを実現します。</p>
+            <div class="code-block">
+.container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+}
+            </div>
+        </div>
+        
+        <div class="responsive-box">
+            <h3>ビューポート単位の活用</h3>
+            <p>固定幅ではなく、vwやvhなどのビューポート単位を使用します。</p>
+            <div class="code-block">
+.responsive-element {
+    width: calc(100% - 20px);
+    max-width: 500px;
+    font-size: calc(14px + 0.5vw);
+}
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>このデモサイトは、日本語から英語へのウェブサイト翻訳時に発生するレイアウト問題の対応方法を示すために作成されました。</p>
+        <p>実際のプロジェクトでは、これらの技術を組み合わせて最適な解決策を見つけることが重要です。</p>
+    </div>
+
+    <script>
+        function toggleLanguage(elementPrefix) {
+            // 日本語要素を取得
+            const jpElements = document.querySelectorAll(`[id^="${elementPrefix}-jp"]`);
+            // 英語要素を取得
+            const enElements = document.querySelectorAll(`[id^="${elementPrefix}-en"]`);
+            
+            // 表示切り替え
+            jpElements.forEach(el => {
+                el.classList.toggle('hidden');
+            });
+            
+            enElements.forEach(el => {
+                el.classList.toggle('hidden');
+            });
+        }
+    </script>
+</body>
+</html>
