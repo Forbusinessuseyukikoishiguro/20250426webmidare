@@ -1,0 +1,947 @@
+# CSS/HTMLレイアウト完全解説ガイド
+
+## 目次
+1. [CSSボックスモデルの基礎](#1-cssボックスモデルの基礎)
+2. [テキストレイアウトの崩れと対策](#2-テキストレイアウトの崩れと対策)
+3. [ボタンのレイアウト問題と解決法](#3-ボタンのレイアウト問題と解決法)
+4. [フォーム要素のレイアウト調整](#4-フォーム要素のレイアウト調整)
+5. [レスポンシブデザインの実装テクニック](#5-レスポンシブデザインの実装テクニック)
+6. [フレックスボックスとグリッドレイアウト](#6-フレックスボックスとグリッドレイアウト)
+7. [よくある問題と解決パターン集](#7-よくある問題と解決パターン集)
+
+## 1. CSSボックスモデルの基礎
+
+### ボックスモデルとは何か
+
+```
+┌─────────────────────────────────────────┐
+│ Margin（外側の余白）                     │
+│ ┌─────────────────────────────────────┐ │
+│ │ Border（枠線）                       │ │
+│ │ ┌─────────────────────────────────┐ │ │
+│ │ │ Padding（内側の余白）           │ │ │
+│ │ │ ┌─────────────────────────────┐ │ │ │
+│ │ │ │ Content（実際のコンテンツ）  │ │ │ │
+│ │ │ └─────────────────────────────┘ │ │ │
+│ │ └─────────────────────────────────┘ │ │
+│ └─────────────────────────────────────┘ │
+└─────────────────────────────────────────┘
+```
+
+CSSボックスモデルは、ウェブページの各要素を矩形（長方形）のボックスとして扱い、以下の4つの部分で構成されています：
+
+1. **Content（コンテンツ）**: テキストや画像など、要素の実際の内容
+2. **Padding（パディング）**: コンテンツの周りの余白
+3. **Border（ボーダー）**: パディングの外側の枠線
+4. **Margin（マージン）**: ボーダーの外側の余白
+
+### 標準ボックスモデルvs代替ボックスモデル
+
+```html
+<div class="standard-box">標準ボックスモデル</div>
+<div class="alternative-box">代替ボックスモデル</div>
+```
+
+```css
+.standard-box {
+    width: 300px; /* コンテンツ幅のみを指定 */
+    padding: 20px; /* パディング */
+    border: 5px solid black; /* ボーダー */
+    /* 実際の表示幅 = 300px + (20px × 2) + (5px × 2) = 350px */
+}
+
+.alternative-box {
+    box-sizing: border-box; /* 代替ボックスモデルを使用 */
+    width: 300px; /* ボックス全体の幅を指定 */
+    padding: 20px; /* パディング */
+    border: 5px solid black; /* ボーダー */
+    /* 実際の表示幅 = 300px（コンテンツ幅は 300px - 40px - 10px = 250px） */
+}
+```
+
+**用語解説**:
+- **box-sizing**: 要素の最終的なサイズを計算する方法を指定するプロパティ
+  - `content-box`: 標準ボックスモデル（デフォルト）。widthとheightはコンテンツ領域のみを指定
+  - `border-box`: 代替ボックスモデル。widthとheightにpadding, borderを含む全体サイズを指定
+
+### レイアウト崩れを防ぐためのボックスモデルのリセット
+
+```css
+/* モダンなリセット方法 */
+*, *::before, *::after {
+    box-sizing: border-box; /* すべての要素に代替ボックスモデルを適用 */
+    margin: 0; /* デフォルトのマージンをリセット */
+    padding: 0; /* デフォルトのパディングをリセット */
+}
+```
+
+**ヒント**: 多くの開発者は代替ボックスモデル（`box-sizing: border-box`）を好みます。これにより、要素の全体サイズを直感的に指定できるようになり、レイアウト設計が容易になります。
+
+## 2. テキストレイアウトの崩れと対策
+
+### 問題1：長い単語によるオーバーフロー
+
+```
+┌────────────────────────────┐
+│ テキストコンテナ           │
+│ ┌────────────────────────┐ │
+│ │ 通常のテキスト          │ │
+│ │ supercalifragilisticex…│ │
+│ │ …pialidocious          │ │
+│ └────────────────────────┘ │
+└────────────────────────────┘
+```
+
+```html
+<div class="text-container">
+    <p>通常のテキスト</p>
+    <p>supercalifragilisticexpialidocious</p>
+</div>
+```
+
+```css
+.text-container {
+    width: 200px; /* 固定幅 */
+    border: 1px solid #ccc;
+}
+```
+
+### 解決策：word-breakとoverflow-wrapプロパティ
+
+```css
+/* 解決策1: 単語内での改行を許可 */
+.text-fix1 {
+    word-break: break-all; /* 任意の位置で改行可能（文字単位） */
+}
+
+/* 解決策2: 長い単語のみ折り返し（単語の区切りを優先） */
+.text-fix2 {
+    overflow-wrap: break-word; /* 長い単語を折り返す */
+    word-wrap: break-word; /* overflow-wrapの古い名称（互換性のため） */
+}
+```
+
+**用語解説**:
+- **word-break**: 単語の途中での改行方法を指定
+  - `normal`: 通常の改行ルール（デフォルト）
+  - `break-all`: すべての文字で改行可能
+  - `keep-all`: 単語間でのみ改行（CJK言語向け）
+- **overflow-wrap** (旧名: word-wrap): 長い単語がコンテナをはみ出す場合の処理
+  - `normal`: 通常の折り返し（デフォルト）
+  - `break-word`: 長すぎる単語を必要に応じて折り返す
+
+### 問題2：単語途中での不自然な改行
+
+```
+┌────────────────────────────┐
+│ normal                     │
+│ ┌────────────────────────┐ │
+│ │ Environmental protect  │ │
+│ │ ion is important.      │ │
+│ └────────────────────────┘ │
+│ hyphens                    │
+│ ┌────────────────────────┐ │
+│ │ Environmental protec-  │ │
+│ │ tion is important.     │ │
+│ └────────────────────────┘ │
+└────────────────────────────┘
+```
+
+### 解決策：ハイフネーション（自動ハイフン挿入）
+
+```html
+<p class="text-normal">Environmental protection is important.</p>
+<p class="text-hyphen" lang="en">Environmental protection is important.</p>
+```
+
+```css
+.text-normal, .text-hyphen {
+    width: 180px; /* 狭い幅 */
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.text-hyphen {
+    hyphens: auto; /* 自動ハイフネーションを有効化 */
+    -webkit-hyphens: auto; /* Safari対応 */
+    -ms-hyphens: auto; /* IE/Edge対応 */
+}
+```
+
+**用語解説**:
+- **hyphens**: 単語の途中でハイフン（-）を使って改行する方法を制御
+  - `none`: ハイフネーションなし
+  - `auto`: ブラウザによる自動ハイフネーション
+  - `manual`: HTML内の特殊文字（&shy;）でのみハイフネーション
+- **lang属性**: 言語を指定するHTML属性。正しいハイフネーションには必須
+
+### 問題3：テキスト切れや省略表示
+
+```
+┌────────────────────────────┐
+│ 省略なし                   │
+│ ┌────────────────────────┐ │
+│ │ これは非常に長いテキス  │ │
+│ │ トで複数行にわたります  │ │
+│ └────────────────────────┘ │
+│ 省略あり                   │
+│ ┌────────────────────────┐ │
+│ │ これは非常に長いテキス… │ │
+│ └────────────────────────┘ │
+└────────────────────────────┘
+```
+
+### 解決策：text-overflowとline-clampの活用
+
+```html
+<p class="ellipsis-single">これは非常に長いテキストで、一行に収まりきらない場合に省略記号で表示されます。</p>
+<p class="ellipsis-multi">これは複数行にわたる長いテキストです。3行までのテキストを表示し、それ以上は省略記号で表示されます。詳細を知るにはクリックしてください。</p>
+```
+
+```css
+/* 1行のテキスト省略 */
+.ellipsis-single {
+    width: 200px;
+    white-space: nowrap; /* テキストを折り返さない */
+    overflow: hidden; /* はみ出た部分を隠す */
+    text-overflow: ellipsis; /* 省略記号（...）を表示 */
+}
+
+/* 複数行のテキスト省略（WebKit系ブラウザ用） */
+.ellipsis-multi {
+    width: 200px;
+    display: -webkit-box; /* 特殊なボックス表示 */
+    -webkit-line-clamp: 3; /* 表示する行数 */
+    -webkit-box-orient: vertical; /* 縦方向の配置 */
+    overflow: hidden; /* はみ出た部分を隠す */
+    line-height: 1.5; /* 行の高さ（重要） */
+}
+```
+
+**用語解説**:
+- **white-space**: テキストの折り返し方法を指定
+  - `normal`: 通常の折り返し（デフォルト）
+  - `nowrap`: 折り返しなし（1行で表示）
+  - `pre`: 改行と空白をそのまま保持
+- **text-overflow**: テキストがオーバーフローした際の表示方法
+  - `clip`: はみ出た部分を切り取る（デフォルト）
+  - `ellipsis`: はみ出た部分を「...」で表示
+- **-webkit-line-clamp**: 表示する行数を制限（WebKit系ブラウザ向け）
+
+## 3. ボタンのレイアウト問題と解決法
+
+### 問題1：テキスト量によるボタンサイズの不一致
+
+```
+┌──────────────────────────────────┐
+│ 問題                             │
+│ ┌────────┐ ┌─────────────────┐   │
+│ │ Login  │ │ Create Account  │   │
+│ └────────┘ └─────────────────┘   │
+│ 解決策                           │
+│ ┌────────────────┐ ┌────────────────┐
+│ │     Login      │ │ Create Account │
+│ └────────────────┘ └────────────────┘
+└──────────────────────────────────┘
+```
+
+```html
+<div class="buttons-container">
+    <button class="btn-uneven">Login</button>
+    <button class="btn-uneven">Create Account</button>
+</div>
+
+<div class="buttons-container">
+    <button class="btn-even">Login</button>
+    <button class="btn-even">Create Account</button>
+</div>
+```
+
+```css
+/* 問題のあるボタン */
+.btn-uneven {
+    padding: 10px 15px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    margin: 5px;
+    /* 幅指定なし - コンテンツ量によってサイズが変わる */
+}
+
+/* 解決策: 幅を揃える */
+.btn-even {
+    width: 180px; /* 固定幅で統一 */
+    padding: 10px 15px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    margin: 5px;
+    text-align: center; /* テキストを中央揃え */
+}
+
+/* フレックスを使った別の解決策 */
+.buttons-container {
+    display: flex; /* フレックスボックスを使用 */
+    gap: 10px; /* ボタン間の間隔 */
+    margin: 20px 0;
+}
+
+.btn-flex {
+    flex: 1; /* 利用可能なスペースを均等に分配 */
+    padding: 10px 15px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    text-align: center;
+}
+```
+
+**用語解説**:
+- **flex**: フレックスアイテムの伸縮性を指定する省略プロパティ
+  - `flex-grow`: アイテムの伸長係数（デフォルト: 0）
+  - `flex-shrink`: アイテムの収縮係数（デフォルト: 1）
+  - `flex-basis`: アイテムの基本サイズ（デフォルト: auto）
+  - 例: `flex: 1` は `flex: 1 1 0%` の省略形
+
+### 問題2：言語切り替えによるボタンテキストのはみ出し
+
+```
+┌───────────────────────────────────┐
+│ 日本語                            │
+│ ┌───────────────┐                 │
+│ │ 送信          │                 │
+│ └───────────────┘                 │
+│ 英語（問題発生）                  │
+│ ┌───────────────┐                 │
+│ │ Submit button │                 │
+│ └───────────────┘                 │
+└───────────────────────────────────┘
+```
+
+### 解決策：min-widthとmax-widthの併用
+
+```html
+<button class="btn-fixed">送信</button>
+<button class="btn-fixed">Submit button</button>
+
+<button class="btn-flexible">送信</button>
+<button class="btn-flexible">Submit button</button>
+```
+
+```css
+/* 問題のあるボタン */
+.btn-fixed {
+    width: 100px; /* 固定幅 */
+    padding: 8px 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    margin: 5px;
+    text-align: center;
+    /* 長いテキストははみ出す可能性がある */
+}
+
+/* 解決策: 最小幅と最大幅を組み合わせる */
+.btn-flexible {
+    min-width: 100px; /* 最小幅 */
+    max-width: 200px; /* 最大幅 */
+    width: auto; /* コンテンツに合わせて伸縮 */
+    padding: 8px 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    margin: 5px;
+    text-align: center;
+    white-space: normal; /* 必要に応じて折り返し */
+}
+```
+
+**用語解説**:
+- **min-width**: 要素の最小幅を指定
+- **max-width**: 要素の最大幅を指定
+- **width: auto**: ブラウザにコンテンツに基づいて幅を計算させる
+
+## 4. フォーム要素のレイアウト調整
+
+### 問題1：ラベルとフォーム要素の配置ズレ
+
+```
+┌───────────────────────────────────┐
+│ 問題                              │
+│ 名前:     ┌────────────────────┐  │
+│           │                    │  │
+│           └────────────────────┘  │
+│ メールアドレス: ┌────────────────────┐
+│                 │                    │
+│                 └────────────────────┘
+│ 解決策                            │
+│ ┌────────────┐ ┌────────────────────┐
+│ │ 名前:      │ │                    │
+│ └────────────┘ └────────────────────┘
+│ ┌────────────┐ ┌────────────────────┐
+│ │ メールアドレス: │                    │
+│ └────────────┘ └────────────────────┘
+└───────────────────────────────────┘
+```
+
+```html
+<!-- 問題のあるフォーム -->
+<div class="form-group-problematic">
+    <label>名前:</label>
+    <input type="text" placeholder="山田太郎">
+</div>
+<div class="form-group-problematic">
+    <label>メールアドレス:</label>
+    <input type="email" placeholder="example@mail.com">
+</div>
+
+<!-- 解決策1: フレックスボックスを使用 -->
+<div class="form-group-flex">
+    <label>名前:</label>
+    <input type="text" placeholder="山田太郎">
+</div>
+<div class="form-group-flex">
+    <label>メールアドレス:</label>
+    <input type="email" placeholder="example@mail.com">
+</div>
+
+<!-- 解決策2: グリッドを使用 -->
+<div class="form-grid">
+    <label>名前:</label>
+    <input type="text" placeholder="山田太郎">
+    <label>メールアドレス:</label>
+    <input type="email" placeholder="example@mail.com">
+</div>
+```
+
+```css
+/* 問題のあるスタイル */
+.form-group-problematic {
+    margin-bottom: 15px;
+}
+
+.form-group-problematic label {
+    display: inline-block;
+    /* 幅が指定されていないため、ラベルの長さによって位置がずれる */
+}
+
+/* 解決策1: フレックスボックス */
+.form-group-flex {
+    display: flex; /* フレックスレイアウトを使用 */
+    align-items: center; /* 縦方向の中央揃え */
+    margin-bottom: 15px;
+}
+
+.form-group-flex label {
+    flex: 0 0 150px; /* 幅150pxで固定 */
+    /* flex: [grow] [shrink] [basis] */
+}
+
+.form-group-flex input {
+    flex: 1; /* 残りのスペースを使用 */
+    padding: 8px;
+}
+
+/* 解決策2: グリッドレイアウト */
+.form-grid {
+    display: grid; /* グリッドレイアウトを使用 */
+    grid-template-columns: 150px 1fr; /* 2列のグリッド */
+    gap: 10px 15px; /* 行間と列間の隙間 */
+    align-items: center; /* 縦方向の中央揃え */
+}
+
+.form-grid input {
+    padding: 8px;
+}
+```
+
+**用語解説**:
+- **display: flex**: フレックスボックスレイアウトを有効にする
+- **align-items**: フレックスアイテムを交差軸（通常は縦方向）に沿って配置
+- **display: grid**: グリッドレイアウトを有効にする
+- **grid-template-columns**: グリッド列のサイズと数を定義
+- **gap**: グリッドアイテム間の隙間を指定
+
+### 問題2：レスポンシブなフォームレイアウト
+
+```
+┌───────────────────────────────────┐
+│ PC表示                           │
+│ ┌────────────┐ ┌────────────────┐ │
+│ │ 名前:      │ │                │ │
+│ └────────────┘ └────────────────┘ │
+│ スマホ表示                        │
+│ ┌────────────┐                    │
+│ │ 名前:      │                    │
+│ └────────────┘                    │
+│ ┌────────────────────────────────┐│
+│ │                                ││
+│ └────────────────────────────────┘│
+└───────────────────────────────────┘
+```
+
+### 解決策：メディアクエリとフレックス方向の変更
+
+```css
+.form-responsive {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.form-responsive label {
+    flex: 0 0 150px;
+}
+
+.form-responsive input {
+    flex: 1;
+    padding: 8px;
+}
+
+/* スマホ向けスタイル */
+@media (max-width: 600px) {
+    .form-responsive {
+        flex-direction: column; /* 縦方向に並べる */
+        align-items: stretch; /* 横幅いっぱいに伸ばす */
+    }
+    
+    .form-responsive label {
+        flex: 0 0 auto; /* 自動サイズ調整 */
+        margin-bottom: 5px; /* ラベルと入力欄の間隔 */
+    }
+}
+```
+
+**用語解説**:
+- **@media**: メディアクエリ、条件に応じてスタイルを適用
+- **flex-direction**: フレックスアイテムの並ぶ方向を指定
+  - `row`: 横方向（デフォルト）
+  - `column`: 縦方向
+- **align-items: stretch**: アイテムを交差軸方向にコンテナいっぱいに伸ばす
+
+## 5. レスポンシブデザインの実装テクニック
+
+### ビューポートの設定
+
+```html
+<head>
+    <!-- レスポンシブデザインに必須のメタタグ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+```
+
+**用語解説**:
+- **viewport**: ブラウザのウィンドウ内でウェブページが表示される部分
+- **width=device-width**: ページの幅をデバイスの画面幅に合わせる
+- **initial-scale=1.0**: 初期のズームレベルを設定
+
+### メディアクエリの基本
+
+```css
+/* 基本スタイル（モバイルファースト） */
+.container {
+    width: 100%;
+    padding: 15px;
+}
+
+/* タブレット向けスタイル */
+@media (min-width: 768px) {
+    .container {
+        max-width: 750px;
+        margin: 0 auto;
+    }
+}
+
+/* デスクトップ向けスタイル */
+@media (min-width: 1024px) {
+    .container {
+        max-width: 980px;
+    }
+}
+
+/* 大画面向けスタイル */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+}
+```
+
+**用語解説**:
+- **@media (min-width: XXXpx)**: 画面幅がXXXpx以上の場合に適用
+- **@media (max-width: XXXpx)**: 画面幅がXXXpx以下の場合に適用
+- **モバイルファースト**: 小さい画面向けのスタイルを基本とし、大きい画面向けにスタイルを追加
+
+### 画像のレスポンシブ対応
+
+```html
+<img src="example.jpg" alt="レスポンシブ画像" class="responsive-image">
+```
+
+```css
+.responsive-image {
+    max-width: 100%; /* 親要素の幅を超えない */
+    height: auto; /* アスペクト比を保持 */
+    display: block; /* インライン要素の余分な余白を除去 */
+}
+```
+
+### レスポンシブなグリッドレイアウト
+
+```html
+<div class="responsive-grid">
+    <div class="grid-item">アイテム1</div>
+    <div class="grid-item">アイテム2</div>
+    <div class="grid-item">アイテム3</div>
+    <div class="grid-item">アイテム4</div>
+</div>
+```
+
+```css
+.responsive-grid {
+    display: grid;
+    gap: 20px;
+    /* 列の最小幅を250px、利用可能なスペースを均等に分配 */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+.grid-item {
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+```
+
+**用語解説**:
+- **repeat()**: グリッドのパターンを繰り返す関数
+- **auto-fill**: 利用可能なスペースに合わせて自動的に列数を調整
+- **minmax(min, max)**: 最小値と最大値の範囲を指定
+- **1fr**: 利用可能なスペースの1つの分数（fraction）
+
+## 6. フレックスボックスとグリッドレイアウト
+
+### フレックスボックス基本レイアウト
+
+```
+┌───────────────────────────────────┐
+│ フレックスボックス（横方向）      │
+│ ┌─────┐ ┌─────┐ ┌─────┐          │
+│ │  1  │ │  2  │ │  3  │          │
+│ └─────┘ └─────┘ └─────┘          │
+│ フレックスボックス（縦方向）      │
+│ ┌─────┐                           │
+│ │  1  │                           │
+│ └─────┘                           │
+│ ┌─────┐                           │
+│ │  2  │                           │
+│ └─────┘                           │
+│ ┌─────┐                           │
+│ │  3  │                           │
+│ └─────┘                           │
+└───────────────────────────────────┘
+```
+
+```html
+<div class="flex-container">
+    <div class="flex-item">1</div>
+    <div class="flex-item">2</div>
+    <div class="flex-item">3</div>
+</div>
+```
+
+```css
+.flex-container {
+    display: flex; /* フレックスボックスを有効化 */
+    flex-direction: row; /* 横方向に配置（デフォルト） */
+    /* または flex-direction: column; で縦方向に配置 */
+    
+    justify-content: space-between; /* 主軸上の配置（アイテム間を均等に） */
+    align-items: center; /* 交差軸上の配置（中央揃え） */
+    
+    flex-wrap: wrap; /* 必要に応じて折り返す */
+    gap: 20px; /* アイテム間の隙間 */
+    
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.flex-item {
+    flex: 1; /* 均等に伸縮 */
+    padding: 20px;
+    background-color: #e0e0e0;
+    text-align: center;
+}
+```
+
+**用語解説**:
+- **flex-direction**: フレックスアイテムの配置方向
+- **justify-content**: 主軸（flex-directionに沿った軸）上のアイテム配置
+  - `flex-start`: 先頭に寄せる
+  - `flex-end`: 末尾に寄せる
+  - `center`: 中央に配置
+  - `space-between`: 両端に配置し、残りを均等配置
+  - `space-around`: 均等に配置し、両端にも半分のスペース
+  - `space-evenly`: すべてのスペースを均等に配置
+- **align-items**: 交差軸（主軸と垂直な軸）上のアイテム配置
+- **flex-wrap**: アイテムの折り返し設定
+  - `nowrap`: 折り返しなし（デフォルト）
+  - `wrap`: 必要に応じて折り返す
+- **gap**: アイテム間の隙間
+
+### グリッドレイアウト基本構造
+
+```
+┌───────────────────────────────────┐
+│ グリッドレイアウト                │
+│ ┌─────┬─────┬─────┐               │
+│ │  A  │  B  │  C  │               │
+│ ├─────┼─────┼─────┤               │
+│ │  D  │  E  │  F  │               │
+│ └─────┴─────┴─────┘               │
+└───────────────────────────────────┘
+```
+
+```html
+<div class="grid-container">
+    <div class="grid-item item-a">A</div>
+    <div class="grid-item item-b">B</div>
+    <div class="grid-item item-c">C</div>
+    <div class="grid-item item-d">D</div>
+    <div class="grid-item item-e">E</div>
+    <div class="grid-item item-f">F</div>
+</div>
+```
+
+```css
+.grid-container {
+    display: grid; /* グリッドレイアウトを有効化 */
+    grid-template-columns: repeat(3, 1fr); /* 3列の均等幅 */
+    grid-template-rows: 100px 100px; /* 2行の固定高さ */
+    gap: 10px; /* セル間の隙間 */
+    
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.grid-item {
+    padding: 20px;
+    background-color: #e0e0e0;
+    text-align: center;
+}
+
+/* 特定のセルを結合する例 */
+.item-e {
+    grid-column: 2 / 4; /* 2列目から4列目の手前まで */
+    /* または grid-column: 2 / span 2; （2列目から2列分） */
+    background-color: #ffcccc;
+}
+```
+
+**用語解説**:
+- **grid-template-columns**: グリッドの列構造を定義
+- **grid-template-rows**: グリッドの行構造を定義
+- **grid-column**: アイテムが占める列の範囲を指定
+- **grid-row**: アイテムが占める行の範囲を指定
+- **fr単位**: 利用可能なスペースの分数（fraction）
+
+### グリッド領域の名前付け
+
+```css
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto;
+    gap: 10px;
+    
+    /* 領域の名前付け */
+    grid-template-areas:
+        "header header header"
+        "sidebar content content"
+        "footer footer footer";
+}
+
+.header { grid-area: header; }
+.sidebar { grid-area: sidebar; }
+.content { grid-area: content; }
+.footer { grid-area: footer; }
+```
+
+**用語解説**:
+- **grid-template-areas**: グリッド領域に名前をつける
+- **grid-area**: アイテムにグリッド領域名を割り当てる
+
+## 7. よくある問題と解決パターン集
+
+### 問題: 固定ヘッダーとフッターのレイアウト
+
+```
+┌───────────────────────────────────┐
+│ ┌───────────────────────────────┐ │
+│ │           ヘッダー           │ │
+│ └───────────────────────────────┘ │
+│ ┌───────────────────────────────┐ │
+│ │                               │ │
+│ │                               │ │
+│ │           コンテンツ          │ │
+│ │         (可変高さ)            │ │
+│ │                               │ │
+│ │                               │ │
+│ └───────────────────────────────┘ │
+│ ┌───────────────────────────────┐ │
+│ │           フッター           │ │
+│ └───────────────────────────────┘ │
+└───────────────────────────────────┘
+```
+
+```html
+<div class="page-container">
+    <header class="header">ヘッダー</header>
+    <main class="content">コンテンツ</main>
+    <footer class="footer">フッター</footer>
+</div>
+```
+
+```css
+/* 解決策1: フレックスボックスを使用 */
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* ビューポートの高さいっぱいに */
+}
+
+.header, .footer {
+    padding: 20px;
+    background-color: #333;
+    color: white;
+}
+
+.content {
+    flex: 1; /* 残りのスペースをすべて使用 */
+    padding: 20px;
+}
+
+/* 解決策2: グリッドレイアウトを使用 */
+.page-container {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
+}
+
+/* ヘッダーとフッターのスタイルは同じ */
+```
+
+**ヒント**: `min-height: 100vh` は、少なくともビューポートの高さいっぱいにコンテナを広げます。これにより、コンテンツが少ない場合でもフッターが画面下部に表示されます。
+
+### 問題: 画像とテキストの回り込み
+
+```css
+/* 伝統的な解決策: float */
+.image-float {
+    float: left; /* または right */
+    margin: 0 20px 20px 0;
+}
+
+/* クリアフィックス（floatの回り込み解除） */
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* モダンな解決策: フレックスボックス */
+.content-flex {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.content-flex .text {
+    flex: 1;
+}
+```
+
+### 問題: 異なる高さの要素を揃える
+
+```css
+/* 問題: 内容量により高さが異なるカード */
+
+/* 解決策1: フレックスボックスの stretch */
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.card {
+    flex: 1 0 300px; /* 少なくとも300pxの幅、均等に伸縮 */
+    display: flex;
+    flex-direction: column;
+}
+
+.card-content {
+    flex: 1; /* カードコンテンツを伸ばして高さを揃える */
+}
+
+/* 解決策2: グリッドの自動配置 */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+```
+
+### 問題: スティッキーヘッダーとサイドバー
+
+```css
+.sticky-header {
+    position: sticky;
+    top: 0; /* 上部にスティッキー */
+    background-color: white;
+    z-index: 100; /* 他の要素より前面に */
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.sticky-sidebar {
+    position: sticky;
+    top: 70px; /* ヘッダーの下にスティッキー */
+    height: calc(100vh - 70px); /* ビューポート高さからヘッダー分を引く */
+    overflow-y: auto; /* 高さを超えた場合はスクロール */
+    padding: 20px;
+}
+```
+
+**用語解説**:
+- **position: sticky**: スクロール位置に基づいて要素を固定
+- **z-index**: 要素の重なり順を制御（大きい値ほど前面）
+- **calc()**: CSSで動的な計算を行う関数
+
+### まとめ: レイアウト崩れを防ぐための基本原則
+
+1. **ボックスモデルを理解する**
+   - `box-sizing: border-box` を基本とする
+   - 幅と高さの指定方法を一貫させる
+
+2. **柔軟なレイアウトを作る**
+   - 固定値より相対値（%やvw、vh、rem）を優先
+   - `min-width`/`max-width` の併用
+   - フレックスボックスとグリッドの適切な活用
+
+3. **テキスト処理を適切に行う**
+   - `word-break`、`overflow-wrap` で長いテキストを制御
+   - 多言語対応を考慮したデザイン
+
+4. **レスポンシブデザインを最初から考慮**
+   - モバイルファーストアプローチ
+   - 適切なブレークポイントの設定
+   - 要素の表示/非表示より、レイアウトの再構成を優先
+
+5. **デバッグとテスト**
+   - 様々なデバイスとブラウザでテスト
+   - 開発者ツールのレスポンシブモードを活用
+   - エッジケース（極端に長いテキスト、小さい画面など）を考慮
