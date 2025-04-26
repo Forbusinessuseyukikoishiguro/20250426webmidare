@@ -1,0 +1,68 @@
+いいね！じゃあ次は、break- 系プロパティ（word-break, overflow-wrap, break-word）をわかりやすく図解して説明するね 💡
+これらは「長い英単語やURLをどうやって折り返すか」に関わる重要プロパティだよ。
+
+💥 word-break（単語の途中で改行するか）
+📘 意味：
+単語や文字列をどの位置で改行できるかを指定するプロパティ。
+
+🎨 図解：
+word-break: normal（標準の挙動）
+nginx
+コピーする
+編集する
+ThisIsAVeryLongEnglishWordWithoutSpaces
+→ はみ出して改行されない（スクロールされる）
+word-break: break-all
+nginx
+コピーする
+編集する
+ThisIsAVeryLongEnglishWord
+→ ThisIsAVeryLon
+   gEnglishWord ← 単語の途中でも無理やり改行！
+word-break: keep-all（主に韓国語向け）
+コピーする
+編集する
+日本語の文章では効果は小さいが、
+英語では単語途中の改行を防ぐ。
+🔄 overflow-wrap（改行の許可）
+📘 意味：
+必要に応じて、単語の途中でも折り返してよいかどうかを指定する。
+
+🎨 図解：
+overflow-wrap: normal
+nginx
+コピーする
+編集する
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+→ 1行からはみ出して、横スクロールが必要になる
+overflow-wrap: break-word
+nginx
+コピーする
+編集する
+aaaaaaaaaaaaaaaaaaaaaa
+→ 自動で途中で改行（折り返し）される
+✅ break-word（実は overflow-wrap の値）
+css
+コピーする
+編集する
+overflow-wrap: break-word;
+これは、長い単語を改行できるようにする実質的なトリガーです！
+古いブラウザでは word-wrap: break-word; と書いていたこともあるけど、今は overflow-wrap に統一されてるよ。
+
+💡 実用組み合わせ例（おすすめ）
+css
+コピーする
+編集する
+p {
+  word-break: break-word;        /* 極端な単語にも対応 */
+  overflow-wrap: break-word;     /* 標準ブラウザ向けの折返し */
+  hyphens: auto;                 /* 英語なら自然なハイフン入り改行 */
+}
+✅ おさらい比較表（break-系プロパティ）
+
+プロパティ	主な値	効果	よく使う場面
+word-break	normal	単語の途中では改行しない	英語やURLを自然に表示
+break-all	単語の途中でもどこでも改行する	表示スペースが狭いとき
+keep-all	単語間の改行のみ許可（韓国語向け）	韓国語や整った見た目
+overflow-wrap	normal	単語が長くても改行しない（はみ出す）	デフォルト設定
+break-word	単語の途中ででも改行してはみ出させない	レスポンシブ対応時など
