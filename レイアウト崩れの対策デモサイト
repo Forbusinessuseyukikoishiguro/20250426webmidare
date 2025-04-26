@@ -1,0 +1,99 @@
+素晴らしいリクエストです！  
+ではまず、「`word-break: normal;`」の説明をわかりやすく追加してから、**実際に動くミニサンプルHTML＋CSS**を用意しますね！
+
+---
+
+## 🧠 `word-break: normal;` って何？
+
+`word-break` は「どこで単語を折り返すか」のルールをCSSで設定できます。
+
+### 🌟 `word-break: normal;` の意味
+
+- **デフォルト（初期）設定**
+- **英語：単語の途中では折り返さない**
+- **日本語：中国語：文字ごとに改行OK**
+- 意図しない変な改行を防ぐ、バランスの良い選択
+
+---
+
+## ✅ 各オプションまとめ
+
+| 値              | 説明 |
+|----------------|------|
+| `normal`       | 単語の途中で切らない（自然なルール） |
+| `break-all`    | 文字単位でバラバラに折り返す（単語の途中も） |
+| `keep-all`     | 単語の途中で折り返し禁止（韓国語・日本語向き） |
+
+---
+
+## 💻 実際に動く！HTML＋CSSミニサンプル
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>英単語改行サンプル</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .example {
+      width: 300px;
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .normal {
+      word-break: normal;
+      overflow-wrap: break-word;
+    }
+
+    .keep-all {
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    .hyphen {
+      word-break: normal;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      text-align: justify;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📘 word-break: normal</h2>
+  <div class="example normal">
+    This paragraph contains a long word: antidisestablishmentarianism which might break oddly.
+  </div>
+
+  <h2>📙 word-break: keep-all</h2>
+  <div class="example keep-all">
+    This paragraph contains a long word: antidisestablishmentarianism which might break oddly.
+  </div>
+
+  <h2>📗 hyphens: auto + justify</h2>
+  <div class="example hyphen">
+    This paragraph contains a long word: antidisestablishmentarianism which might break nicely with hyphenation if supported.
+  </div>
+
+</body>
+</html>
+```
+
+---
+
+## 🔍 試すとわかるポイント！
+
+- スマホやウィンドウを狭くすると、単語がどう改行されるか違いが出ます。
+- `normal` は自然に折り返し。
+- `keep-all` は極力折り返さない。
+- `hyphens: auto` は自動で `-` を入れてきれいに折り返す（※対応ブラウザで）。
+
+---
