@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テキスト整列デモサイト</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            padding: 20px;
+        }
+
+        header {
+            margin-bottom: 30px;
+            text-align: center;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        /* 問題あり：単語が途中で改行される例 */
+        .bad-example {
+            background-color: #ffeded;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        /* 解決策1: word-breakを使用 */
+        .solution-1 {
+            background-color: #edfff5;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            /* 単語の途中で改行させない */
+            word-break: keep-all;
+            overflow-wrap: break-word;
+        }
+
+        /* 解決策2: word-wrapとword-breakの組み合わせ */
+        .solution-2 {
+            background-color: #edfffd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            word-break: normal;
+            overflow-wrap: break-word;
+        }
+
+        /* 解決策3: hyphensを使用して自動ハイフネーション */
+        .solution-3 {
+            background-color: #f0edff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            hyphens: auto;
+            word-break: normal;
+        }
+
+        /* 英語特有の設定 */
+        .english-text {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-left: 3px solid #3498db;
+        }
+
+        /* テキスト整列のためのクラス */
+        .text-justify {
+            text-align: justify;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        /* 説明テキスト */
+        .description {
+            margin: 10px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* コードサンプル */
+        .code {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 20px;
+            }
+            
+            h2 {
+                font-size: 18px;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 18px;
+            }
+            
+            h2 {
+                font-size: 16px;
+            }
+            
+            .container {
+                padding: 5px;
+            }
+            
+            .section {
+                padding: 10px;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* ナビゲーションメニュー */
+        nav ul {
+            list-style-type: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        nav ul li a {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        nav ul li a:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>テキスト整列デモサイト</h1>
+        <p>HTML/CSSで文字の行頭を揃え、英単語の改行問題を解決する方法</p>
+        <nav>
+            <ul>
+                <li><a href="#problem">問題点</a></li>
+                <li><a href="#solution">解決策</a></li>
+                <li><a href="#responsive">レスポンシブ対応</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <section id="problem" class="section">
+            <h2>問題点: 英単語が改行途中になる</h2>
+            
+            <div class="bad-example">
+                <h3>問題例（整列なし）:</h3>
+                <p>これは長い英単語（supercalifragilisticexpialidocious）が含まれるテキストの例です。このように長い単語があるとブラウザは単語の途中で改行してしまうことがあります。</p>
+                
+                <div class="english-text">
+                    <p>This is an example of text containing long English words like supercalifragilisticexpialidocious and antidisestablishmentarianism. The browser might break these words in the middle when reaching the edge of the container.</p>
+                </div>
+            </div>
+            
+            <p class="description">上記の例では、文字の行頭が揃っておらず、長い英単語が途中で改行されてしまっています。これはデフォルトの挙動ですが、読みやすさを損なうことがあります。</p>
+            
+            <div class="code">/* デフォルトの状態 */
+.bad-example {
+    /* 特別なテキスト制御がない状態 */
+}</div>
+        </section>
+
+        <section id="solution" class="section">
+            <h2>解決策: CSSプロパティを活用する</h2>
+            
+            <div class="solution-1">
+                <h3>解決策1: word-breakとoverflow-wrap</h3>
+                <p>word-break: keep-allとoverflow-wrap: break-wordを使用することで、単語の途中での改行を防ぎつつ、必要な場合には適切に折り返しを行います。長い単語（supercalifragilisticexpialidocious）も適切に処理されます。</p>
+                
+                <div class="english-text">
+                    <p>This is an example of text containing long English words like supercalifragilisticexpialidocious and antidisestablishmentarianism. With proper CSS, these words won't break in the middle of a word.</p>
+                </div>
+            </div>
+            
+            <div class="code">/* 解決策1 */
+.solution-1 {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}</div>
+            
+            <div class="solution-2">
+                <h3>解決策2: text-alignとoverflow-wrap</h3>
+                <p class="text-justify">この例ではtext-align: justifyを使用して行頭を揃えつつ、overflow-wrap: break-wordで適切な折り返しを実現しています。これにより長い単語（supercalifragilisticexpialidocious）も含めて、テキストが美しく整列します。</p>
+                
+                <div class="english-text text-justify">
+                    <p>This is an example of justified text containing long English words like supercalifragilisticexpialidocious and antidisestablishmentarianism. The text is aligned on both the left and right margins, creating a clean, uniform appearance.</p>
+                </div>
+            </div>
+            
+            <div class="code">/* 解決策2 */
+.solution-2 {
+    text-align: justify;
+    word-break: normal;
+    overflow-wrap: break-word;
+}</div>
+            
+            <div class="solution-3">
+                <h3>解決策3: hyphensを使用する（英語テキスト向け）</h3>
+                <p>英語テキストの場合、hyphens: autoを使うことでブラウザが自動的にハイフネーションを行い、長い単語（supercalifragilisticexpialidocious）も読みやすく表示します。日本語には適用されません。</p>
+                
+                <div class="english-text" style="hyphens: auto; text-align: justify;">
+                    <p lang="en">This is an example of text with automatic hyphenation applied to long English words like supercalifragilisticexpialidocious and antidisestablishmentarianism. The browser will insert hyphens where appropriate.</p>
+                </div>
+            </div>
+            
+            <div class="code">/* 解決策3（英語テキスト向け） */
+.solution-3 {
+    hyphens: auto;
+    text-align: justify;
+    word-break: normal;
+}</div>
+        </section>
+
+        <section id="responsive" class="section">
+            <h2>レスポンシブ対応</h2>
+            
+            <p>このデモサイトはスマートフォンやタブレット、PCなど異なる画面サイズに対応しています。ブラウザのサイズを変更して、テキストがどのように表示されるか確認してください。</p>
+            
+            <div class="code">/* レスポンシブ対応のためのメディアクエリ */
+@media (max-width: 768px) {
+    /* タブレット向けスタイル */
+}
+
+@media (max-width: 480px) {
+    /* スマートフォン向けスタイル */
+}</div>
+            
+            <p class="description">画面幅に応じてコンテンツのサイズやパディングを調整することで、どのデバイスでも読みやすく表示されます。</p>
+        </section>
+    </div>
+
+    <footer>
+        <p style="text-align: center; margin-top: 20px; padding: 10px; border-top: 1px solid #ddd;">
+            テキスト整列デモサイト © 2025
+        </p>
+    </footer>
+</body>
+</html>
